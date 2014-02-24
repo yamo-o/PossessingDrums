@@ -25,7 +25,10 @@
     ----------------------------------------------------------------------------
     
     See http://www.yamo-n.org/pd/possessingdrums.html & https://github.com/yamo-o/PossessingDrums 
-    for documentation
+    for more information
+    
+    contact: Kazuhiko Yamamoto [yamotulp(at)gmail.com] 
+             Twitter: @yamo_o
     
 ==============================================================================*/
 
