@@ -6,7 +6,7 @@ Copyright (c) 2014 Yamo
 MIT License.
 
 For information on usage and redistribution, and for a DISCLAIMER OF ALL
-WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+WARRANTIES, see the file, "LICENSE," in this distribution.
 
 See http://www.yamo-n.org/pd/possessingdrums.html for more information. 
 
