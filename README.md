@@ -30,5 +30,5 @@ An example project is provided as main() in PossessingDrums.cpp. To build the ex
 Developing Posessing Drums
 --------------------
 
-Feel free to log bug reports and issues to the Possessing Drums Github page: https://github.com/PossessingDrums/issues
+Feel free to log bug reports and issues to the Possessing Drums Github page: https://github.com/yamo-o/PossessingDrums/issues
 
