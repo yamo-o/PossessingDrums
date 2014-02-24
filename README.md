@@ -35,5 +35,6 @@ Feel free to log bug reports and issues to the Possessing Drums Github page: htt
 Contact
 --------------------
 
-Kazuhiko Yamamoto: yamotulp(at)gmail.com 
+Kazuhiko Yamamoto [yamotulp(at)gmail.com]
+
 Twitter: @yamo_o
