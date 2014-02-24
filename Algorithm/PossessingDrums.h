@@ -121,9 +121,12 @@ wav1._stereo_to_mono();
 unsigned int num_sp=calc_average_power_spectrum(_fft,wav1._data,_power._getPointer(),0,wav1._length,_windowSize/2);
 _separator._registerTeacher(timbre,_power._getPointer(),num_sp); // register audio source
 
+
 CAudioModalizer<T> analysis; // analyzer
 analysis._multiLevelEstimation(wav1); // estimate the modal parameters
 _inverseFilters[timbre]._constructInverseFilter(analysis._num_modes,&(analysis._freq[0]),&(analysis._ampcoupling[0]),_sampleRate);
+
+analysis._clear();
 
 
 _separator._registerTeacher(timbre,_power._getPointer(),num_sp);
@@ -138,7 +141,6 @@ _resonators[timbre]._init(_windowSize,_sampleRate,1,1,1,1); // initialize the re
 _resonators[timbre]._setModes(analysis._num_modes,&analysis._ampcoupling[0],&analysis._freq[0],&analysis._damping[0]);
 
 _active[timbre]=true;
-
 
 }
 

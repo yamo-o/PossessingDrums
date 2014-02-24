@@ -171,14 +171,14 @@ public:
 typedef T value_type;
 
 T* _value;
-int _size;
+unsigned int _size;
 
 CVector(){
 _size=0;
 _value=NULL;
 }
 
-explicit CVector(int size){
+explicit CVector(unsigned int size){
 _size=size;
 _value=new T[size];
 }
@@ -486,9 +486,9 @@ for(int i=0;i<_size;++i){
 }
 }
 
-void _resize(int size){
+void _resize(unsigned int size){
 T* tmp=new T[size];
-memset(tmp,0,sizeof(T));
+memset(tmp,0,size*sizeof(T));
 if(_value){
   int s=std::min(size,_size);
   for(int i=0;i<s;++i) tmp[i]=_value[i];

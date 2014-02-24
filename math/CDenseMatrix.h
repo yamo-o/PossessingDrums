@@ -219,7 +219,7 @@ for(int i=0;i<row;++i){
 
 }
 
-virtual void _resize(int row,int col){
+virtual void _resize(unsigned int row,unsigned int col){
 if(_value){
   delete [] _value;
 }
@@ -583,19 +583,19 @@ return(true);
 }
 
 
-inline T &operator()(int i,int j){
+inline T &operator()(unsigned int i,unsigned int j){
 return(_value[i][j]);
 }
 
-inline const T &operator()(int i,int j) const {
+inline const T &operator()(unsigned int i,unsigned int j) const {
 return(_value[i][j]);
 }
 
-inline T* operator[](int i){
+inline T* operator[](unsigned int i){
 return(_value[i]);
 }
 
-inline const T* operator[](int i) const {
+inline const T* operator[](unsigned int i) const {
 return(_value[i]);
 }
 

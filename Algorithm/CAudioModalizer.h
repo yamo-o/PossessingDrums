@@ -206,6 +206,8 @@ _ampcoupling.clear();
 _damping.clear();
 _freq.clear();
 _num_modes=0;
+if(_residual) delete [] _residual;
+_residual=NULL;
 }
 
 
@@ -254,7 +256,6 @@ _sampleRate=wav._sampleRate;
 
 int best=0;
 int num_modes=0;
-
 
 for(int i=0;i<8;++i){
    CFFT_Analyzer<T> fft;
