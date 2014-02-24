@@ -158,7 +158,7 @@ _outputs._resize(3*num_modes);
 _outputs=0;
 
 for(int i=0;i<num_modes;i++){
-   _setNotch(i,freq[i],gain[i],&_b[2*i],sampleRate);
+   _setNotch(i,freq[i],gain[i],&_b[0],sampleRate);
    _a[3*i]=1.0;
    _b[3*i]=1.0;
 }

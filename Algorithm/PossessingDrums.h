@@ -122,11 +122,9 @@ unsigned int num_sp=calc_average_power_spectrum(_fft,wav1._data,_power._getPoint
 _separator._registerTeacher(timbre,_power._getPointer(),num_sp); // register audio source
 
 
-CAudioModalizer<T> analysis; // analyzer
-analysis._multiLevelEstimation(wav1); // estimate the modal parameters
-_inverseFilters[timbre]._constructInverseFilter(analysis._num_modes,&(analysis._freq[0]),&(analysis._ampcoupling[0]),_sampleRate);
-
-analysis._clear();
+CAudioModalizer<T> analysis1; // analyzer
+analysis1._multiLevelEstimation(wav1); // estimate the modal parameters
+_inverseFilters[timbre]._constructInverseFilter(analysis1._num_modes/4,&(analysis1._freq[0]),&(analysis1._ampcoupling[0]),_sampleRate);
 
 
 _separator._registerTeacher(timbre,_power._getPointer(),num_sp);
@@ -135,10 +133,11 @@ CWaveData wav2;
 wav2._open(timbrefile);
 wav2._cache_from_file();
 wav2._stereo_to_mono();
-analysis._clear();
-analysis._multiLevelEstimation(wav2); // analyze the timbre
+
+CAudioModalizer<T> analysis2; // analyzer
+analysis2._multiLevelEstimation(wav2); // analyze the timbre
 _resonators[timbre]._init(_windowSize,_sampleRate,1,1,1,1); // initialize the resonator
-_resonators[timbre]._setModes(analysis._num_modes,&analysis._ampcoupling[0],&analysis._freq[0],&analysis._damping[0]);
+_resonators[timbre]._setModes(analysis2._num_modes,&analysis2._ampcoupling[0],&analysis2._freq[0],&analysis2._damping[0]);
 
 _active[timbre]=true;
 
