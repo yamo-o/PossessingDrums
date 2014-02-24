@@ -141,7 +141,7 @@ T _gain;
 public:
 
 CAudioModeFilter(){
-_gain=0.8;
+_gain=0.6;
 }
 
 ~CAudioModeFilter(){}
