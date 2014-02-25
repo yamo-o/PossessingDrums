@@ -16,7 +16,7 @@ This project uses modified version of Ooura's FFT code(http://www.kurims.kyoto-u
 Description
 -----------
 
-Possessing Drums is an interface for music instruments for assigning an arbitrary timbre(sound) to an arbitrary object around you(such as a table or cup, or actions such as vocalization by audio signal processing). This code runs on Mac OSX, Linux, and Windows(not tested). This code includes the algorithm for real-time sound source separation, modal parameter estimation, and modal(physical-based) sound synthesis. 
+Possessing Drums is an interface for music instruments for assigning an arbitrary timbre(sound) to an arbitrary object around you(such as a table or cup, or actions such as vocalization by audio signal processing). This code runs on Mac OSX, Linux, and Windows(not tested). This code includes several audio signal processing algorithms for real-time sound source separation, modal parameter estimation, and modal(physical-based) sound synthesis, etc. 
 
 [http://www.yamo-n.org/pd/possessingdrums.html](http://www.yamo-n.org/pd/possessingdrums.html)
 
