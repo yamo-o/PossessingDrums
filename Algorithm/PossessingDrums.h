@@ -112,7 +112,7 @@ _active=false;
 
 void _setPair(const int timbre,const char* drivefile,const char* timbrefile){
 
-CWaveData wav1;
+CWaveData<T> wav1;
 wav1._open(drivefile);
 wav1._cache_from_file();
 wav1._stereo_to_mono();
@@ -129,7 +129,7 @@ _inverseFilters[timbre]._constructInverseFilter(analysis1._num_modes/4,&(analysi
 
 _separator._registerTeacher(timbre,_power._getPointer(),num_sp);
 
-CWaveData wav2;
+CWaveData<T> wav2;
 wav2._open(timbrefile);
 wav2._cache_from_file();
 wav2._stereo_to_mono();

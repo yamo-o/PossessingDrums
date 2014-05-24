@@ -248,7 +248,7 @@ fclose(fp);
 }
 
 
-int _multiLevelEstimation(CWaveData& wav,int maxIter=0,bool calctransfer=false){
+int _multiLevelEstimation(CWaveData<T>& wav,int maxIter=0,bool calctransfer=false){
 
 const int windowSize[]={128,256,512,1024,2048,4096,8192,16384};
 

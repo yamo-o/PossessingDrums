@@ -386,7 +386,7 @@ int num_events;
 seq>>num_events;
 seq>>max_time;
 
-CWaveData* waves=new CWaveData[num_timbres];
+CWaveData<T>* waves=new CWaveData<T>[num_timbres];
 int length=(int)(waves[0]._sampleRate*max_time+0.5);
 const int num_frames=length/step-windowsize/step-1;
 
@@ -412,7 +412,7 @@ for(int j=0;j<num_events;j++){
 }
 seq.close();
 
-CWaveData savewav;
+CWaveData<T> savewav;
 for(int i=0;i<num_timbres;i++){
    savewav._set_wave(length,&source[length*i]);
    sprintf(outputpath,"%s/source%d.wav",arg[4].c_str(),i);

@@ -48,10 +48,11 @@ CWAVE_FORMAT_FLOAT64
 } CWAVE_FORMAT;
 
 
-typedef struct RECORD_FRAME{
-float* _buf;
+template <class T> class RECORD_FRAME{
+public:
+T* _buf;
 RECORD_FRAME *_prev,*_next;
-} RECORD_FRAME;
+};
 
 
 typedef struct CWAVHDR{
@@ -101,7 +102,7 @@ for(i=0;i<dwNumWords;i++){
 }
 
 
-class CWaveData{
+template <class T> class CWaveData{
 
 public:
 
@@ -117,12 +118,12 @@ unsigned int _channels;
 unsigned int _length;
 unsigned int _sampleRate;
 int _beginpoint,_endpoint;
-float* _data;
-float* _cache;
-float _cache_size;
+T* _data;
+T* _cache;
+unsigned int _cache_size;
 bool _loop;
 unsigned int _rec_frameSize;
-RECORD_FRAME *_rec_frame,*_tail_frame;
+RECORD_FRAME<T> *_rec_frame,*_tail_frame;
 int _num_frames;
 
 
@@ -131,14 +132,14 @@ _on_memory=false;
 _opened=false;
 _fd=0;
 _big_endian=false;
-_tail_frame=_rec_frame=NULL;
+_tail_frame=_rec_frame=nullptr;
 _rec_frameSize=44100*8;
 _num_frames=0;
 _channels=1;
 _sampleRate=44100;
 _length=0;
-_data=NULL;
-_cache=NULL;
+_data=nullptr;
+_cache=nullptr;
 _cache_size=0;
 _loop=false;
 _current_pos=0;
@@ -149,21 +150,21 @@ _beginpoint=_endpoint=0;
 if(_fd>0) _close();
 if(_on_memory) free(_data);
 if(_num_frames>0){
-  RECORD_FRAME* tmp=_rec_frame;
+  RECORD_FRAME<T>* tmp=_rec_frame;
   while(tmp){
-     RECORD_FRAME* tmpp=tmp->_next;
+     RECORD_FRAME<T>* tmpp=tmp->_next;
 	 free(tmp->_buf);
 	 delete tmp;
 	 tmp=tmpp;
   }
-  _rec_frame=_tail_frame=NULL;
+  _rec_frame=_tail_frame=nullptr;
   _num_frames=0;
 }
 }
 
 
-inline float& operator[](int i){ return(_data[i]); }
-inline const float& operator[](int i) const { return(_data[i]); }
+inline T& operator[](int i){ return(_data[i]); }
+inline const T& operator[](int i) const { return(_data[i]); }
 
 
 void _open(const char* path){
@@ -185,11 +186,11 @@ _opened=false;
 }
 
 void _resize(unsigned int size){
-float* tmp=(float*)malloc(_channels*size*sizeof(float));
+T* tmp=new T[size];
 if(_data){
   if(size<_length) _length=size;
-  memcpy(tmp,_data,_channels*_length*sizeof(float));
-  free(_data);
+  memcpy(tmp,_data,_channels*_length*sizeof(T));
+  delete [] _data;
 }
 _data=tmp;
 _length=size;
@@ -237,9 +238,6 @@ if(_format_tag==0xFFFE){
     swap16((unsigned short*)&_format_tag);
   }
   if(fseek(_fd,_dataOffset,SEEK_SET)==-1) return;
-}
-if(_format_tag!=1 && _format_tag!=3){
-  //return;
 }
 
 
@@ -351,14 +349,16 @@ if(_on_memory){
   return(readSize);
 }
 
+
+
 if(_dataType==CWAVE_FORMAT_SINT16){
   short int* ptr=(short int*)buf;
   fread(ptr,2*nSamples,1,_fd);
   if(_big_endian){
-	for(int i=nSamples-1;i>=0;i--) swap16((unsigned short*)ptr++);
-	ptr=(short int*)buf;
+    for(int i=nSamples-1;i>=0;i--) swap16((unsigned short*)ptr++);
+    ptr=(short int*)buf;
   }
-  max_val=1.0f/32768.0f;
+  max_val=1.0f/32768.0;
   for(int i=nSamples-1;i>=0;i--){
      ptr[i]*=max_val;
      buf[i]=ptr[i];
@@ -367,19 +367,19 @@ if(_dataType==CWAVE_FORMAT_SINT16){
   int* ptr=(int*)buf;
   fread(ptr,4*nSamples,1,_fd);
   if(_big_endian){
-	for(int i=nSamples-1;i>=0;i--) swap32((unsigned int*)ptr++);
-	ptr=(int*)buf;
+    for(int i=nSamples-1;i>=0;i--) swap32((unsigned int*)ptr++);
+    ptr=(int*)buf;
   }
-  max_val=1.0f/2147483648.0f;
-  for(int i=nSamples-1;i>=0;i--){ 
+  max_val=1.0f/2147483648.0;
+  for(int i=nSamples-1;i>=0;i--){
      ptr[i]*=max_val;
-	 buf[i]=ptr[i];
+     buf[i]=ptr[i];
   }
 }else if(_dataType==CWAVE_FORMAT_FLOAT32){
   fread(buf,4*nSamples,1,_fd);
   if(_big_endian){
     float* ptr=buf;
-	for(int i=nSamples-1;i>=0;i--) swap32((unsigned int*)ptr++);
+    for(int i=nSamples-1;i>=0;i--) swap32((unsigned int*)ptr++);
   }
 }else if(_dataType==CWAVE_FORMAT_FLOAT64){
   double *ptr=(double*)buf;
@@ -390,20 +390,21 @@ if(_dataType==CWAVE_FORMAT_SINT16){
 }else if(_dataType==CWAVE_FORMAT_SINT8){
   unsigned char* ptr=(unsigned char*)buf;
   fread(ptr,nSamples,1,_fd);
-  max_val=1.0f/128.0f;
-  for(int i=nSamples-1;i>=0;i--){ 
+  max_val=1.0f/128.0;
+  for(int i=nSamples-1;i>=0;i--){
      buf[i]=(ptr[i]-128)*max_val;
   }
 }else if(_dataType==CWAVE_FORMAT_SINT24){
   unsigned int tmp;
-  max_val=1.0f/8388608.0f;
+  max_val=1.0f/8388608.0;
   for(int i=0;i<nSamples;i++){
-	 fread(&tmp,3,1,_fd);
-	 tmp>>=8;
-	 if(_big_endian) swap32((unsigned int*)&tmp);
-	 buf[i]=tmp*max_val;
+     fread(&tmp,3,1,_fd);
+     tmp>>=8;
+     if(_big_endian) swap32((unsigned int*)&tmp);
+     buf[i]=tmp*max_val;
   }
 }
+
 
 _current_pos+=readSize;
 if(_loop){
@@ -418,18 +419,18 @@ return(readSize);
 
 void _cache_from_file(){
 if(!_opened) return;
-if(_data) free(_data);
+if(_data) delete [] _data;
 
-_data=(float*)malloc(_channels*_length*sizeof(float));
-memset(_data,0,_channels*_length*sizeof(float));
+_data=new T[_channels*_length];
+memset(_data,0,_channels*_length*sizeof(T));
 _rewind();
 short int* ptr=(short int*)_data;
-//_read(_length,_data);
+
 fread(ptr,_channels*_length*sizeof(short int),1,_fd);
 
-float max_val=1.0f/32768.0f;
+T max_val=1.0f/32768.0;
 for(int i=(_channels*_length-1);i>=0;i--){
-   _data[i]=(float)(ptr[i]);
+   _data[i]=(T)(ptr[i]);
    _data[i]*=max_val;
 }
 _endpoint=_length;
@@ -450,10 +451,10 @@ if(_on_memory){
 _channels=1;
 }
 
-void _set_wave(int length,float* data){
-if(_data) free(_data);
-_data=(float*)malloc(length*sizeof(float));
-memcpy(_data,data,length*sizeof(float));
+void _set_wave(int length,T* data){
+if(_data) delete [] _data;
+_data=new T[length];
+memcpy(_data,data,length*sizeof(T));
 _channels=1;
 _length=length;
 _on_memory=true;
@@ -462,7 +463,7 @@ _on_memory=true;
 void _save(const char *fileName,int start,int length){
 char name[8192];
 strncpy(name,fileName,8192);
-if(strstr(name,".wav")==NULL) strcat(name,".wav");
+if(strstr(name,".wav")==nullptr) strcat(name,".wav");
 FILE* fd=fopen(name,"wb");
 
 CWAVHDR hdr={"RIF",44,"WAV","fmt",16,1,1,_sampleRate,0,2,16,"dat",0};
@@ -479,7 +480,7 @@ fwrite(&hdr,4,11,fd);
 
 short int data;
 for(int i=0;i<length;i++){
-   data=_data[start+i]*32768.0f;
+   data=_data[start+i]*32768.0;
    fwrite(&data,2,1,fd);
 }
 
@@ -498,17 +499,17 @@ fclose(fd);
 
 
 void _normalize(){
-float maxf=0.0f;
+T maxf=0.0;
 for(int i=0;i<_length;i++){
    if(maxf<sqrt(_data[i]*_data[i])) maxf=sqrt(_data[i]*_data[i]);
 }
-maxf=1.0f/maxf;
+maxf=1.0/maxf;
 for(int i=0;i<_length;i++){
    _data[i]*=maxf;
 }
 }
 
-void _ready_cache(int begin,int size){
+void _ready_cache(unsigned int begin,unsigned int size){
 if(!_opened) return;
 if(begin>=_length) return;
 
@@ -516,23 +517,29 @@ if((begin+size)>=_length) size=_length-begin;
 
 if(_cache){
   if(size>_cache_size){
-    free(_cache);
-	_cache=(float*)malloc(_channels*size*sizeof(float));
+    delete [] _cache;
+	_cache=new T[_channels*size];
   }
-}else _cache=(float*)malloc(_channels*_length*sizeof(float));
+}else _cache=new T[_channels*size];
 
-memset(_cache,0,_channels*size*sizeof(float));
+memset(_cache,0,_channels*size*sizeof(T));
 
 _seek(begin);
 
-_read(size,_cache);
+short int* ptr=(short int*)_cache;
 
-_close();
+fread(ptr,_channels*_length*sizeof(short int),1,_fd);
+
+T max_val=1.0f/32768.0;
+for(int i=(size-1);i>=0;i--){
+   _cache[i]=(T)(ptr[i]);
+   _cache[i]*=max_val;
+}
 
 }
 
 
-void _copy(unsigned int begin,unsigned int end,CWaveData* data){
+void _copy(unsigned int begin,unsigned int end,CWaveData<T>* data){
 data->_fd=_fd;
 data->_opened=true;
 data->_big_endian=_big_endian;
@@ -544,10 +551,11 @@ data->_on_memory=true;
 data->_channels=_channels;
 data->_length=begin-end;
 data->_sampleRate=_sampleRate;
-if(data->_data) free(data->_data);
-data->_data=(float*)malloc(_channels*data->_length*sizeof(float));
+
+if(data->_data) delete data->_data;
+data->_data=new T[_channels*data->_length];
 if(_on_memory){
-  memcpy(data->_data,&_data[_channels*begin],_channels*(begin-end)*sizeof(float));
+  memcpy(data->_data,&_data[_channels*begin],_channels*(begin-end)*sizeof(T));
 }else{
   _seek(begin);
   _read(begin-end,data->_data);
@@ -558,15 +566,15 @@ if(_on_memory){
 void _rec_start(){}
 void _rec_end(){ _render_Recdata(); }
 
-void _record(int size,float* buf){
+void _record(unsigned int size,T* buf){
 if(_tail_frame){
   if((_current_pos+size)>=_rec_frameSize){
 	int remain=_rec_frameSize-_current_pos;
-	memcpy(&_tail_frame->_buf[_current_pos],buf,_channels*remain*sizeof(float));
-	RECORD_FRAME* tmp=new RECORD_FRAME;
-	tmp->_buf=(float*)malloc(_rec_frameSize*sizeof(float));
-	memset(tmp->_buf,0,_rec_frameSize*sizeof(float));
-	tmp->_next=NULL;
+	memcpy(&_tail_frame->_buf[_current_pos],buf,_channels*remain*sizeof(T));
+	RECORD_FRAME<T>* tmp=new RECORD_FRAME<T>;
+	tmp->_buf=new T[_rec_frameSize];
+	memset(tmp->_buf,0,_rec_frameSize*sizeof(T));
+	tmp->_next=nullptr;
 	tmp->_prev=_tail_frame;
 	_tail_frame->_next=tmp;
 	_tail_frame=tmp;
@@ -574,45 +582,46 @@ if(_tail_frame){
 	_current_pos=size-remain;
 	_num_frames++;
   }else{
-    memcpy(&_tail_frame->_buf[_current_pos],buf,_channels*size*sizeof(float));
+    memcpy(&_tail_frame->_buf[_current_pos],buf,_channels*size*sizeof(T));
 	_current_pos+=size;
   }
 }else{
-  _rec_frame=new RECORD_FRAME;
-  _rec_frame->_buf=(float*)malloc(_rec_frameSize*sizeof(float));
-  memset(_rec_frame->_buf,0,_rec_frameSize*sizeof(float));
-  _rec_frame->_prev=_rec_frame->_next=NULL;
+  _rec_frame=new RECORD_FRAME<T>;
+  _rec_frame->_buf=new T[_rec_frameSize];
+  memset(_rec_frame->_buf,0,_rec_frameSize*sizeof(T));
+  _rec_frame->_prev=_rec_frame->_next=nullptr;
   _tail_frame=_rec_frame;
-  memcpy(_rec_frame->_buf,buf,_channels*size*sizeof(float));
+  memcpy(_rec_frame->_buf,buf,_channels*size*sizeof(T));
   _current_pos=size;
   _num_frames=1;
 }
 }
 
 void _render_Recdata(){
+
 if(_num_frames==0) return;
-if(_data) free(_data);
+if(_data) delete [] _data;
 _length=(_num_frames-1)*_rec_frameSize+_current_pos;
-_data=(float*)malloc(_channels*_length*sizeof(float));
+_data=new T[_channels*_length];
 
 int idx=0;;
-RECORD_FRAME* tmp=_rec_frame;
+RECORD_FRAME<T>* tmp=_rec_frame;
 while(tmp){
      if(tmp==_tail_frame) break;
-	 memcpy(&_data[_channels*idx*_rec_frameSize],tmp->_buf,_channels*_rec_frameSize*sizeof(float));
+	 memcpy(&_data[_channels*idx*_rec_frameSize],tmp->_buf,_channels*_rec_frameSize*sizeof(T));
 	 idx++;
      tmp=tmp->_next;
 }
-memcpy(&_data[_channels*idx*_rec_frameSize],tmp->_buf,_channels*_current_pos*sizeof(float));
+memcpy(&_data[_channels*idx*_rec_frameSize],tmp->_buf,_channels*_current_pos*sizeof(T));
 
 tmp=_rec_frame;
 while(tmp){
-     RECORD_FRAME* tmpp=tmp->_next;
-	 free(tmp->_buf);
+     RECORD_FRAME<T>* tmpp=tmp->_next;
+	 delete [] tmp->_buf;
 	 delete tmp;
 	 tmp=tmpp;
 }
-_rec_frame=_tail_frame=NULL;
+_rec_frame=_tail_frame=nullptr;
 _num_frames=0;
 
 

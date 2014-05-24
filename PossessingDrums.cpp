@@ -42,7 +42,7 @@
 //example for testing sound source separation
 void realtime_sound_source_separation_test(){
 
-CRealtimeAudioSeparator<float>* sep=new CRealtimeAudioSeparator<float>();
+CRealtimeAudioSeparator<double>* sep=new CRealtimeAudioSeparator<double>();
 std::vector<std::string> testarg;
 testarg.push_back(std::string("256")); // window size
 testarg.push_back(std::string("5")); // quantity of timbre
@@ -65,7 +65,7 @@ delete sep;
 int main(int argc,char *argv[]){
 
 
-PossessingDrums<float> pd;
+PossessingDrums<double> pd;
 
 std::cout<<"initialize"<<std::endl;
 
@@ -89,32 +89,32 @@ pd._setPair(4,"./testdata/guiterB3.wav","./testdata/pianoE3.wav");
 pd._ready();
 
 
-CWaveData wav;
+CWaveData<double> wav;
 wav._open("./testdata/mix.wav"); // input signal
 wav._cache_from_file(); // load onto RAM
 wav._stereo_to_mono(); // convert to monaural signal
 int num_frames=wav._length/BUFFER_SIZE+1;
 
-CWaveData result;
+CWaveData<double> result;
 
-float frame[BUFFER_SIZE];
-float resultBuf[BUFFER_SIZE];
+double frame[BUFFER_SIZE];
+double resultBuf[BUFFER_SIZE];
 
 std::cout<<"start"<<std::endl;
 
 // play
 for(int f=0;f<num_frames;++f){
 
-   if(f!=num_frames-1) memcpy(frame,&wav[BUFFER_SIZE*f],BUFFER_SIZE*sizeof(float));
+   if(f!=num_frames-1) memcpy(frame,&wav[BUFFER_SIZE*f],BUFFER_SIZE*sizeof(double));
    else{
-     memset(frame,0,BUFFER_SIZE*sizeof(float));
+     memset(frame,0,BUFFER_SIZE*sizeof(double));
      int j=0;
      for(int i=f*BUFFER_SIZE;i<wav._length;++i,++j){
         frame[j]=wav[i];
      }
    }
    
-   memset(resultBuf,0,BUFFER_SIZE*sizeof(float));
+   memset(resultBuf,0,BUFFER_SIZE*sizeof(double));
    
    pd._record(BUFFER_SIZE,frame); // input
    pd._render(BUFFER_SIZE,resultBuf); // output
